@@ -10,6 +10,33 @@ var io = require('socket.io')(http);
 var mongoose=require('mongoose');
 var multer  =   require('multer');  
 var upload = require('express-fileupload');
+
+var FCM = require('fcm-node');
+// put server key in different file later on.
+var serverKey = 'AAAAKjbM8ME:APA91bGCEezFAaKbgrBvhwIkTh6CDpSqiIGrHKaB1K2SYMuRXpmjPGtFsMa2kAYvl218tTg1mYQawq0Dwt2tZlLc8xCLk-6bxswYQ8ww-kS6BV2fQaINI8DwtLksncYTPDggHyvWaAuj'; //put your server key here
+var fcm = new FCM(serverKey);
+
+
+var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+        to: 'dkpufylU8mk:APA91bFHWW8D1rY6beA5tBou_twaVW6wI1wPT2OhyBkDZIbJA29SXzYUGVU7AlYP1jRufbrzKphZrVXF-AW6JbnNM7YvyWqrE1Npdyanaug9GmcZLyMPpWZHxwA9TsmGrUNOnACSaWg9', 
+        collapse_key: 'your_collapse_key',
+        
+        notification: {
+            title: 'Hello Bhavyam', 
+            body: 'I\'m sending this notification using nodejs' 
+        },
+        
+    };
+    
+fcm.send(message, function(err, response){
+    if (err) {
+        console.log("Something has gone wrong!");
+    } else {
+        console.log("Successfully sent with response: ", response);
+    }
+});
+
+
 app.use('/static', express.static(__dirname+"/public/images"));
 app.use(bodyParser());
 app.use(bodyParser.json());
