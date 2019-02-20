@@ -1,8 +1,3 @@
-/**
- * Created by sreejeshpillai on 09/05/15.
- */
-
-
 var express = require('express');
 var app = require('express')();
 var MongoClient = require('mongodb').MongoClient;
@@ -15,12 +10,16 @@ var io = require('socket.io')(http);
 var mongoose=require('mongoose');
 var multer  =   require('multer');  
 var upload = require('express-fileupload');
+
+
+
 app.use('/static', express.static(__dirname+"/public/images"));
 app.use(bodyParser());
 app.use(bodyParser.json());
 app.use(upload());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+/*
 var storage =   multer.diskStorage({  
   destination: function (req, file, callback) {  
     callback(null, './uploads');  
@@ -31,6 +30,7 @@ var storage =   multer.diskStorage({
 });  
 var upload = multer({ storage : storage}).single('myfile');  
 var xxx;
+*/
 mongoose.connect("mongodb://localhost/firststep",function(err){
     if(err){
         console.log(err);
@@ -40,10 +40,22 @@ mongoose.connect("mongodb://localhost/firststep",function(err){
     }
 });
 
+var userSchema = new mongoose.Schema({
+ studentName: String,
+ parentName: String,
+ emailId: String,
+ mobileNumber: String,
+ center: String
+});
+
+var user = mongoose.model("user", userSchema);
+
+
 app.get('/',function(req,res){   
     console.log(__dirname);
     res.send("hhhhhhhhhhheeeeeeeelllllllooooooo");
 })
+
 
 var not = io
   .on('connection', function (socket) {
@@ -218,6 +230,35 @@ app.post('/new_user', function(req, res, next) {
     
 });
 
+
+app.post("/adduser", (req, res) => {
+	 var userData = new user(req.body);
+
+	 console.log("studentName " + req.body.studentName);
+
+	 user.findOne({studentName : req.body.studentName}, function (err, user) {
+	 	console.log(user);
+
+	 if(user!=null){
+	 		res.send("You have already Registered and are under verification. Please contact admin for any issues.")
+	 	}
+	else{
+	 		userData.save()
+	 .then(item => {
+	 res.send("You are Registered now. We'll send you a confirmation once we have verified you.");
+	 })
+	 .catch(err => {
+	 res.status(400).send("unable to save to database");
+	 });
+	 	console.log("Registered.");
+	 }
+
+	 		})
+	 	});
+
+
+
+
 http.listen(8080,function(){
-    console.log('server listening on port 3000');
+    console.log('server listening on port 8080');
 })
